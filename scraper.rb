@@ -14,8 +14,6 @@ review_links = review_links.reject do |link|
   parent_classes.any? { |p| %w[next-container page-number].include?(p) }
 end
 
-review_links = review_links[0...4]
-
 reviews = review_links.map do |link|
   review = link.click
   review_meta = review.search('#main .review-meta .info')
