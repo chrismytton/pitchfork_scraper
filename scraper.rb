@@ -8,20 +8,19 @@ page = agent.get("http://pitchfork.com/reviews/albums/")
 
 review_links = page.links_with(href: %r{^/reviews/albums/\w+})
 
-review_links = review_links.reject do |link|
+review_links = review_links.drop(1).reject do |link|
   parent_classes = link.node.parent['class'].split
   parent_classes.any? { |p| %w[next-container page-number].include?(p) }
 end
 
 reviews = review_links.map do |link|
   review = link.click
-  review_meta = review.search('#main .review-meta .info')
-  artist = review_meta.search('h1')[0].text
-  album = review_meta.search('h2')[0].text
-  label, year = review_meta.search('h3')[0].text.split(';').map(&:strip)
-  reviewer = review_meta.search('h4 address')[0].text
-  review_date = Date.parse(review_meta.search('.pub-date')[0].text)
-  score = review_meta.search('.score').text.to_f
+  artist = review.search('.artist-links').text
+  album = review.search('.review-title').text
+  label, year = review.search('.labels-and-years').text.split('•').map(&:strip)
+  reviewer = review.search('.display-name').text
+  review_date = DateTime.parse(review.search('.pub-date')[0]['title'])
+  score = review.search('.score').text.to_f
   {
     artist: artist,
     album: album,
