@@ -1,10 +1,10 @@
 require 'bundler/setup'
 require 'mechanize'
-require 'date'
+require 'time'
 require 'scraperwiki'
 
 agent = Mechanize.new
-page = agent.get("http://pitchfork.com/reviews/albums/")
+page = agent.get("https://pitchfork.com/reviews/albums/")
 
 review_links = page.links_with(href: %r{^/reviews/albums/\w+})
 
@@ -16,10 +16,10 @@ end
 reviews = review_links.map do |link|
   review = link.click
   artist = review.search('.artist-links').text
-  album = review.search('.review-title').text
-  label, year = review.search('.labels-and-years').text.split('•').map(&:strip)
-  reviewer = review.search('.display-name').text
-  review_date = DateTime.parse(review.search('.pub-date')[0]['title'])
+  album = review.search('.single-album-tombstone__review-title').text
+  label, year = review.search('.single-album-tombstone__meta').text.split('•').map(&:strip)
+  reviewer = review.search('.authors-detail__display-name').text
+  review_date = Time.parse(review.search('.pub-date')[0]['title'])
   score = review.search('.score').text.to_f
   {
     artist: artist,
